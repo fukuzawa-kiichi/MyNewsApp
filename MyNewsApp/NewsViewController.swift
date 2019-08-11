@@ -21,6 +21,17 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
     // 記事情報の配列の入れ物
     var articles: [Any] = []
     
+    
+    // XMLファイルに解析をかけた情報
+    var elements = NSMutableDictionary()
+    // XMLファイルのタグ情報
+    var element: String = ""
+    // XMLファイルのタイトル情報
+    var titleString: String = ""
+    // XMLファイルのリンク情報
+    var linkString: String = ""
+    
+    
     // webView
     @IBOutlet weak var webView: WKWebView!
     // toolBar(4つのボタン)
@@ -34,10 +45,6 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
     
     
     
-    
-    
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -47,23 +54,20 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
         tableView.dataSource = self              // これはviewにtableViewを貼ったときは必要
         // navigationDelegateとの接続
         webView.navigationDelegate = self
-        // ParserDelegateと接続
-        parser.delegate = self
         
         
         
         // tableViewの位置を固定する
-        tableView.frame = CGRect(x: 0, y: 50, width: self.view.frame.width, height: self.view.frame.height - 50)
+        tableView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
         // tableViewをviewに入れ込む(忘れがちだけど重要)
         self.view.addSubview(tableView)            // これはviewにtableViewを貼ったときは必要
-        
-        
         
         
         // 最初は隠す(tableViewが表示されるのを邪魔してしまうから)
         webView.isHidden = true
         toolBar.isHidden = true
         
+        parseUrl()
     }
     
     
@@ -77,11 +81,57 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
         parser = XMLParser(contentsOf: urlToSend)!
         // 前の記事が残る可能性がある
         articles = []
+        // ParserDelegateと接続
+        parser.delegate = self
         // 解析の実行
         parser.parse()
         // tableViewのデータをリロード
         tableView.reloadData()
     }
+    
+    // タグを見つけたときの処理
+    func parser(_ parser: XMLParser, didStartElement elementName: String, namespaceURI: String?, qualifiedName qName: String?, attributes attributeDict: [String : String] = [:]) {
+        // elementNameにタグの名前が入ってくるのでelementに代入
+        element = elementName
+        // elementにitemが入ったとき
+        if element == "item" {
+            // 初期化
+            elements = [:]
+            titleString = ""
+            linkString = ""
+        }
+    }
+    
+    // 開始タグと終了タグでくくられたデータがあったときの処理
+    func parser(_ parser: XMLParser, foundCharacters string: String) {
+        
+        if element == "title" {
+            titleString.append(string)
+        }else if element == "link" {
+            linkString.append(string)
+        }
+        
+    }
+    
+    // 終了タグを見つけたとき
+    func parser(_ parser: XMLParser, didEndElement elementName: String, namespaceURI: String?, qualifiedName qName: String?) {
+         // アイテムという要素の中にあるなら
+        if elementName == "item" {
+            
+           // titleString,linkStringの中身が空でないなら
+            if titleString != "" {
+                // elementsに"title"、"Link"というキー値を付与しながらtitleString,linkStringをセット
+                elements.setObject(titleString, forKey: "title" as NSCopying)
+            }
+            if linkString != "" {
+                elements.setObject(linkString, forKey: "link" as NSCopying)
+            }
+            
+            // articlesの中にelementsを入れる
+            articles.append(elements)
+        }
+    }
+    
     
     // セルの高さ
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -100,20 +150,31 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier:  "Cell")
         // セルの色
         cell.backgroundColor = #colorLiteral(red: 0.7605839944, green: 1, blue: 0.7711436476, alpha: 1)
+        
         // テキストのサイズちとフォント
         cell.textLabel?.font = UIFont.boldSystemFont(ofSize: 15.0)
+        cell.textLabel?.text = (articles[indexPath.row] as AnyObject).value(forKey: "title") as? String
         cell.textLabel?.textColor = UIColor.black
         
         // 記事URLのサイズとフォント
         cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 13.0)
+        cell.detailTextLabel?.text = (articles[indexPath.row] as AnyObject).value(forKey: "link") as? String
         cell.detailTextLabel?.textColor = UIColor.gray
         
         return cell
     }
     
-    //
+    // セルをタップした場合の処理
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let linkUrl = ((articles[indexPath.row] as AnyObject).value(forKey: "link") as? String)?.trimmingCharacters(in: .whitespacesAndNewlines)
         
+        let urlStr = (linkUrl?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed))!
+        
+        guard let url = URL(string: urlStr) else {
+            return
+        }
+        let urlRequest = NSURLRequest(url: url)
+        webView.load(urlRequest as URLRequest)
     }
     
     // ページの読み込み完了時に呼ばれる
