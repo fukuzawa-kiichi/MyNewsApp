@@ -12,6 +12,8 @@ import WebKit
 
 class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDelegate, UITableViewDataSource, WKNavigationDelegate, XMLParserDelegate {
     
+    // 引っ張って更新
+    var refreshControl: UIRefreshControl!
     
     // テーブルビューのインスタンスを取得
     var tableView: UITableView = UITableView()                // コードで書くときのみやる
@@ -54,7 +56,9 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
         tableView.dataSource = self              // これはviewにtableViewを貼ったときは必要
         // navigationDelegateとの接続
         webView.navigationDelegate = self
-        
+        // refreshControlのインスタンス
+        refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
         
         
         // tableViewの位置を固定する
@@ -63,6 +67,9 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
         self.view.addSubview(tableView)            // これはviewにtableViewを貼ったときは必要
         
         
+        // refreshを行う
+        tableView.addSubview(refreshControl)
+        
         // 最初は隠す(tableViewが表示されるのを邪魔してしまうから)
         webView.isHidden = true
         toolBar.isHidden = true
@@ -70,8 +77,17 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
         parseUrl()
     }
     
+    // refreshs処理
+    @objc func refresh() {
+        // 2秒後にdelayを呼ぶ
+        perform(#selector(delay), with: nil, afterDelay: 2.0)
+    }
     
-    
+    // parseUrlをrefreshする
+    @objc func delay() {
+        parseUrl()
+        refreshControl.endRefreshing()
+    }
     
     
     // URLを解析する
@@ -209,7 +225,7 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
     }
     
      // refreshボタンが押されたときの処理
-    @IBAction func refresh(_ sender: Any) {
+    @IBAction func refreshPage(_ sender: Any) {
         webView.reload()
     }
     
