@@ -14,6 +14,7 @@
 		C1AF342D22FF94AA00D4E8B9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C1AF342C22FF94AA00D4E8B9 /* Assets.xcassets */; };
 		C1AF343022FF94AA00D4E8B9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C1AF342E22FF94AA00D4E8B9 /* LaunchScreen.storyboard */; };
 		C1AF343822FFA97200D4E8B9 /* NewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1AF343722FFA97200D4E8B9 /* NewsViewController.swift */; };
+		C1AF343A22FFBD5900D4E8B9 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1AF343922FFBD5900D4E8B9 /* WebKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -28,6 +29,7 @@
 		C1AF342F22FF94AA00D4E8B9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C1AF343122FF94AA00D4E8B9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C1AF343722FFA97200D4E8B9 /* NewsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsViewController.swift; sourceTree = "<group>"; };
+		C1AF343922FFBD5900D4E8B9 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -35,6 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C1AF343A22FFBD5900D4E8B9 /* WebKit.framework in Frameworks */,
 				AB6F0D055C6B529DC879A6D3 /* Pods_MyNewsApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -45,6 +48,7 @@
 		948E362CD48DF70280577F75 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C1AF343922FFBD5900D4E8B9 /* WebKit.framework */,
 				181925AC82BBCABACE5B3ACD /* Pods_MyNewsApp.framework */,
 			);
 			name = Frameworks;
