@@ -9,6 +9,7 @@
 import UIKit
 import XLPagerTabStrip
 import WebKit
+import SDWebImage
 
 class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDelegate, UITableViewDataSource, WKNavigationDelegate, XMLParserDelegate {
     
@@ -23,6 +24,7 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
     // 記事情報の配列の入れ物
     var articles: [Any] = []
     
+    var urlArray = [String]()
     
     // XMLファイルに解析をかけた情報
     var elements = NSMutableDictionary()
@@ -32,6 +34,11 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
     var titleString: String = ""
     // XMLファイルのリンク情報
     var linkString: String = ""
+    
+    var urlString: String = ""
+    
+    let imageView = UIImage()
+    
     
     
     // webView
@@ -43,6 +50,7 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
     var url: String = ""
     // itemInfoを受け取る
     var itemInfo: IndicatorInfo = ""
+   
     
     
     
@@ -115,6 +123,12 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
             elements = [:]
             titleString = ""
             linkString = ""
+            
+        }
+        if element == "enclosure" {
+            urlString = attributeDict["url"]!
+            urlArray.append(urlString)
+    
         }
     }
     
@@ -142,10 +156,13 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
             if linkString != "" {
                 elements.setObject(linkString, forKey: "link" as NSCopying)
             }
-            
+            if urlString != "" {
+                elements.setObject(urlString, forKey: "url" as NSCopying)
+            }
             // articlesの中にelementsを入れる
             articles.append(elements)
         }
+       
     }
     
     
@@ -176,6 +193,18 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
         cell.detailTextLabel?.font = UIFont.systemFont(ofSize: 13.0)
         cell.detailTextLabel?.text = (articles[indexPath.row] as AnyObject).value(forKey: "link") as? String
         cell.detailTextLabel?.textColor = UIColor.gray
+        
+        
+        // セルに画像をセット
+        if let stringURL = (articles[indexPath.row] as AnyObject).value(forKey: "url") as? String  {
+            cell.imageView?.image = getImageByURL(url: stringURL)
+        }
+         /*
+            if let url: URL = URL(string: stringURL) {
+                cell.imageView?.sd_setImage(with: url, placeholderImage: UIImage(named: "placeImage.png"))
+            }
+          let url:URL = URL(string: stringURL)!
+ */
         
         return cell
     }
@@ -230,11 +259,44 @@ class NewsViewController: UIViewController, IndicatorInfoProvider, UITableViewDe
     }
     
     
+    func getImageByURL(url: String) -> UIImage? {
+        // リサイズされた画像
+        var resizedImage: UIImage!
+        // URL型でurlを取得
+        guard let url: URL = URL(string: url) else { return nil }
+        do {
+            let data = try Data(contentsOf: url)
+            // urlから画像を取得
+            if let image = UIImage(data: data) {
+                // 画像をリサイズ
+                resizedImage = resize(image: image, width: 75)
+            }
+            return resizedImage
+        } catch let err {
+            print("Error: \(err.localizedDescription)")
+        }
+        return nil
+    }
+    
+    // 画像のサイズを変更する関数
+    func resize(image: UIImage, width: Double) -> UIImage {
+        // オリジナル画像のサイズからアスペクト比を計算
+        let aspectScale = image.size.height / image.size.width
+        // widthからアスペクト比を元にリサイズ後のサイズを取得
+        let resizedSize = CGSize(width: width, height: width * Double(aspectScale))
+        // リサイズ後のUIImageを生成して返却
+        UIGraphicsBeginImageContext(resizedSize)
+        image.draw(in: CGRect(x: 0, y: 0, width: resizedSize.width, height: resizedSize.height))
+        let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return resizedImage!
+    }
     
     // プロトコルの要求を満たすやつ
     func indicatorInfo(for pagerTabStripController: PagerTabStripViewController) -> IndicatorInfo {
         return itemInfo
     }
+    
     
     
     

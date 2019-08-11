@@ -108,7 +108,7 @@
                                     <barButtonItem style="plain" systemItem="flexibleSpace" id="n41-0Q-FiZ"/>
                                     <barButtonItem systemItem="refresh" id="qcz-2x-5gb">
                                         <connections>
-                                            <action selector="refresh:" destination="vfz-FS-aRh" id="8cX-e8-S10"/>
+                                            <action selector="refreshPage:" destination="vfz-FS-aRh" id="RsX-4d-mCC"/>
                                         </connections>
                                     </barButtonItem>
                                 </items>

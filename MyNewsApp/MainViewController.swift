@@ -14,10 +14,13 @@ class MainViewController: ButtonBarPagerTabStripViewController {
     // URLの配列(yahoo,NHK,週刊文春)
     let urlList: [String] = ["https://news.yahoo.co.jp/pickup/domestic/rss.xml",
                              "https://www.nhk.or.jp/rss/news/cat0.xml",
-                             "http://shukan.bunshun.jp/list/feed/rss"]
+                             "http://shukan.bunshun.jp/list/feed/rss",
+                             "https://toyokeizai.net/list/feed/rss"]
 
     // タブの名前の配列
-    var itemInfo: [IndicatorInfo] = ["Yahoo!", "NHK", "週間文春"]
+    var itemInfo: [IndicatorInfo] = ["Yahoo!", "NHK", "週間文春","東洋経済"]
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
